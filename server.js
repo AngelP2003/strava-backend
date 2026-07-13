@@ -273,4 +273,6 @@ app.delete("/activities/:id", async (req, res) => {
     });
   }
 });
+
+
 startServer();
