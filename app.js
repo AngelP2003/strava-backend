@@ -2,8 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 const User = require("./models/User");
+const Activity = require("./models/Activity");
 
 const app = express();
 
@@ -113,5 +115,69 @@ app.post("/login", async (req, res) => {
     });
   }
 });
+app.post("/activities", async (req, res) => {
+  try {
+    console.log("ACTIVIDAD RECIBIDA:", req.body);
 
+    const {
+      userId,
+      title,
+      date,
+      distance,
+      duration,
+      pace,
+      notes,
+      bpm,
+      steps,
+      cadence,
+      acceleration,
+      iaClass,
+      iaLabel,
+      iaConfidence,
+      iaRecommendation
+    } = req.body;
+
+    if (!userId || !title || !date) {
+      return res.status(400).json({
+        error: "Faltan datos obligatorios"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        error: "ID de usuario inválido"
+      });
+    }
+
+    const activity = await Activity.create({
+      userId,
+      title,
+      date,
+      distance,
+      duration,
+      pace,
+      notes,
+      bpm,
+      steps,
+      cadence,
+      acceleration,
+      iaClass,
+      iaLabel,
+      iaConfidence,
+      iaRecommendation
+    });
+
+    return res.status(201).json({
+      message: "Actividad guardada",
+      activity
+    });
+  } catch (error) {
+    console.error("ERROR SAVE ACTIVITY:", error);
+
+    return res.status(500).json({
+      error: "Error al guardar actividad",
+      detail: error.message
+    });
+  }
+});
 module.exports = app;
